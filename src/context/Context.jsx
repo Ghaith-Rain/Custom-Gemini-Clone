@@ -23,34 +23,31 @@ const ContextProvider = (props) => {
         setResultData("");
         setLoading(true);
         setShowResult(true);
-        setRecentPrompt(input)
-        const response = await run(input)
-        function boldText(text) {
-            const regex = /\*\*(.*?)\*\*/g;
-          
-            return text.replace(regex, "<b>$1</b>");
-          }
-        let boldedResponse = boldText(response)
+        if (prompt !== undefined){
+            setRecentPrompt(prompt);
+            setResultData(localStorage.getItem(prompt))
+        }
+        else{
 
-        // old shit tutorial code
-        // let responseArray = response.split("**");
-        // let newResponse ;
-        // for(let i = 0 ; i < responseArray.length ; i++){
-        //     if(i === 0 || i % 2 !== 1){
-        //         newResponse += responseArray[i]
-        //     }
-        //     else{
-        //         newResponse += "<b>" + responseArray[i] + "</b>"
-        //     }
-        // }
-
-        // let newLinedResponse = boldedResponse.split("*").join("</br>")
-        let newLinedResponse = boldedResponse.replace(/\*\s/g, "</br>• ");
-        const newText = newLinedResponse.replace(/(?<!\\)\n/g, "<br>");
-        let gradResponse = newText.split(" ");
-        for(let i = 0; i < gradResponse.length; i++){
-            let nextWord = gradResponse[i] + " ";
-            delayPara(i,nextWord);
+            setRecentPrompt(input)
+            setPrevPrompts(prev => [...prev,input])
+            const response = await run(input)
+            function boldText(text) {
+                const regex = /\*\*(.*?)\*\*/g;
+              
+                return text.replace(regex, "<b>$1</b>");
+              }
+            let boldedResponse = boldText(response)
+    
+            
+            let newLinedResponse = boldedResponse.replace(/\*\s/g, "</br>• ");
+            const newText = newLinedResponse.replace(/(?<!\\)\n/g, "<br>");
+            localStorage.setItem(input,newText);
+            let gradResponse = newText.split(" ");
+            for(let i = 0; i < gradResponse.length; i++){
+                let nextWord = gradResponse[i] + " ";
+                delayPara(i,nextWord);
+            }
         }
         setLoading(false)
         setInput("")
